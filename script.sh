@@ -1,43 +1,35 @@
-#!/bin/bash
-echo "Вы запустили скрипт с именем script.sh"
-echo "Разработчик: Водянкин Кирилл"
-echo "Программа для отключения/подключения репозиториев"
-
-echo "Список репозиториев"
-yum repolist all
-echo "Список включенных репозиториев"
-yum repolist
+!/bin/bash
+echo ""
+echo "Автор: Водянкин Кирилл, группа 748"
+echo "Программа: script.sh"
+echo "Программа для подключения и отключения репозиториев"
+echo ""
 while :
 do
-echo "Введите имя отключенного репозитория, который будет включен или включенного, который будет отключен"
-read -r repo
-if !(checkrepo $repolist); then
-	echo "Такого репозитория нет в списке подключенных, отключить?"
-	echo -n "y/n: "
-	read answer
-	if [ "$answer" != "${answer#[Yy]}" ] ;then
-	    yum-config-manager --disable $repo
-	else
-	    yum-config-manager --enable $repo
-	fi
-	echo "Закончили?"
-	echo -n "y/n: "
-	read answer
-	if [ "$answer" != "${answer#[Nn]}" ] ;then
-	        echo "Выход!"
-	    exit
-	else
-	    echo "Закончили!!"
-	fi
+echo "Списк имеющихся репозиториев:"
+rep=$(ls /etc/yum.repos.d/)
+echo "$rep"
+echo ""
+read -p "Введите названия репозитория из списка: " repo
+dict=$(yum repolist enabled $repo)
+stct="$(echo $dict | rev | cut -d" " -f1 | rev)"
+if [ -e /etc/yum.repos.d/$repo.repo ]
+then
+if [ $stct = "0" ]
+then
+re=$(yum-config-manager --enable $repo)
+echo "Репозиторий подключен"
 else
-	echo "Закончили?"
-	echo -n "y/n: "
-	read answer
-	if [ "$answer" != "${answer#[Nn]}" ] ;then
-		echo "Выход!!"
-		exit
-	else
-		echo "Закончили!"
+re=$(yum-config-manager --disable $repo)
+echo "Репозиторий отключен"
 fi
+else
+echo "Репозиторий не найден"
 fi
+read -p "Начать заново? (д/н): " prodolzaem
+if [ $prodolzaem != "д" ]
+then
+echo "Выход из программы"
+break
+fi 
 done

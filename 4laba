@@ -1,0 +1,21 @@
+#include "mbed.h"
+DigitalOut oled1(LED1);
+InterruptIn ibutton1 (BUTTON1);
+static auto sleep_time =1000ms;
+int touch =0;
+void pressed()
+{
+touch++;
+}
+int main()
+{
+ibutton1.rise($pressed);
+while(true)
+{
+if (touch>2)
+{
+oled1=!oled1;
+touch = 0;
+}
+}
+}

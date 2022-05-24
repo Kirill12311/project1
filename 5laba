@@ -1,0 +1,52 @@
+#include "PinNames.h"
+#include "mbed.h"
+#define PRINT_FLAG 66
+DigitalOut myled(PA_9);
+typedef struct {
+    bool vkl; 
+    uint32_t counter;
+} message_t2;
+MemoryPool<message_t2, 16> mpool2;
+Queue<message_t2, 16> queue2;
+Thread thread2;
+void led_on(void)
+{
+    myled = 1;
+}
+void send_thread2(void) {
+  uint32_t i = 0;
+  while (true) {
+      i++;
+      
+        message_t2 *message2 = mpool2.alloc();
+         if(myled==0)
+       {
+        message2->vkl = true;
+       }
+       if(myled==1)
+       {
+        message2->vkl = false;
+       }
+
+        message2->counter = i;
+        queue2.put(message2);
+        ThisThread::sleep_for(1005);
+  }
+}
+int main(void)
+{
+    thread2.start(callback(send_thread2));
+    while (true) {
+         
+        osEvent evt2 = queue2.get();
+        if (evt2.status == osEventMessage) {
+            message_t2 *message2 = (message_t2 *)evt2.value.p;
+            printf("\nVkl: %u \n\r", (bool) message2->vkl);
+            
+            printf("Number of cycles: %u\n\r", message2->counter);
+            myled = (bool) message2->vkl;
+            mpool2.free(message2);
+             
+        }  
+    }
+}

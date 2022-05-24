@@ -1,0 +1,57 @@
+#include "mbed.h"
+#include "PinNames.h"
+#include "BME280.h"
+#include <cstdio>
+#define PRINT_FLAG 66
+BME280 sensor(PB_9, PB_8);
+DigitalOut oled1(LED1);
+DigitalOut myled(PA_9);
+typedef struct {
+    int temp; 
+    uint32_t counter;
+} message_t2;
+MemoryPool<message_t2, 16> mpool2;
+Queue<message_t2, 16> queue2;
+Thread thread2;
+void send_thread2(void) {
+  uint32_t i = 0;
+  while (true) {
+      i++;
+            
+       message_t2 *message2 = mpool2.alloc();
+  
+        message2->temp = (int)sensor.getTemperature();
+     
+
+       message2->counter = i;
+        queue2.put(message2);
+        ThisThread::sleep_for(1005);
+ }
+}
+int main(void)
+{
+   thread2.start(callback(send_thread2));
+while (true) {
+         
+      osEvent evt2 = queue2.get();
+       if (evt2.status == osEventMessage) {
+           message_t2 *message2 = (message_t2 *)evt2.value.p;
+            printf("\nTemp: %d \n\r", (int) message2->temp);
+            
+           printf("Number of cycles: %u\n\r", message2->counter);
+            
+            mpool2.free(message2);
+             
+        }  
+          if ((int)sensor.getTemperature()<30)
+  {
+oled1 =1;
+myled=0;
+  }
+  if ((int)sensor.getTemperature()>30)
+  {
+      oled1 =0;
+      myled=1;
+  }
+    }
+}

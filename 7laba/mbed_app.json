@@ -1,0 +1,31 @@
+{
+    "config": {
+"wifi-ssid": {
+"help": "WiFi SSID",
+"value": "\"Xperia\""
+},
+"wifi-password": {
+"help": "WiFi Password",
+"value": "\"12345678\""
+},
+"tx": {
+"help": "TX pin for serial connection",
+"value": "PB_10"
+},
+"rx": {
+"help": "RX pin for serial connection",
+"value": "PB_11"
+}
+},
+"target_overrides": {
+"*": {
+"target.network-default-interface-type": "WIFI",
+"esp8266.tx": "PB_10",
+"esp8266.rx": "PB_11",
+"esp8266.socket-bufsize": "1024",
+"esp8266.debug": false,
+"platform.stdio-convert-newlines": true,
+"esp8266.provide-default" : true
+}
+}
+}
